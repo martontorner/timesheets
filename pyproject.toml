@@ -1,3 +1,10 @@
 [build-system]
-requires = ["setuptools >= 62.1.0", "wheel >= 0.37.1"]
+requires = ["setuptools >= 69.5.1", "wheel >= 0.43.0"]
 build-backend = "setuptools.build_meta"
+
+[tool.ruff]
+# Set the maximum line length to 79.
+line-length = 79
+
+[tool.ruff.lint]
+extend-select = ["E501"]

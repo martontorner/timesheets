@@ -8,13 +8,15 @@ import typing
 
 import requests
 
-from .core import TimeEntry, TargetConnector
+from timesheets.connectors.core import TimeEntry, TargetConnector
 
-_WorkLog: typing.TypeAlias = dict[str, dict[str, typing.Union[str, int, float]]]
+_WorkLog: typing.TypeAlias = dict[
+    str, dict[str, typing.Union[str, int, float]]
+]
 
 
 class Kronos(TargetConnector):
-    BASE_URL: str = "https://jira.capsys.hu/rest/kronos/1.0"
+    BASE_URL: str = "https://jira.capsys.hu"
     DEFAULT_COMMENT: str = ""
     DEFAULT_SITE_ID: int = 31
 
@@ -37,7 +39,7 @@ class Kronos(TargetConnector):
         return self._headers is not None
 
     def login(self) -> None:
-        url: str = "https://jira.capsys.hu/rest/auth/1/session"
+        url: str = f"{Kronos.BASE_URL}/rest/auth/1/session"
 
         response: requests.Response = requests.post(
             url=url,
@@ -48,8 +50,8 @@ class Kronos(TargetConnector):
             raise Exception(f"Cannot login to JIRA ({response.status_code})")
 
         result: dict[str, dict[str, str]] = response.json()
-        name: str = result['session']['name']
-        value: str = result['session']['value']
+        name: str = result["session"]["name"]
+        value: str = result["session"]["value"]
 
         self._headers = {"cookie": f"{name}={value}"}
 
@@ -58,14 +60,14 @@ class Kronos(TargetConnector):
             self.login()
 
     def _is_valid_issue(self, issue: str) -> bool:
-        url: str = f"https://jira.capsys.hu/rest/api/latest/issue/{issue}"
+        url: str = f"{Kronos.BASE_URL}/rest/api/latest/issue/{issue}"
 
         self._ensure_login()
 
         return requests.get(url=url, headers=self._headers).ok
 
     def _create_work_log(self, work_log: _WorkLog) -> None:
-        url: str = f"{Kronos.BASE_URL}/log-entry"
+        url: str = f"{Kronos.BASE_URL}/rest/kronos/1.0/log-entry"
         issue: str = work_log["worklogInput"]["issueKey"]
 
         self._ensure_login()
@@ -80,24 +82,38 @@ class Kronos(TargetConnector):
         )
 
         if not response.ok:
-            raise Exception(f"Cannot create work log ({response.status_code})")
+            status_code: int = response.status_code
+            reason: str = response.text
+
+            raise Exception(
+                f"Cannot create work log ({status_code}, reason: {reason})"
+            )
 
     def create_time_entry(self, entry: TimeEntry) -> None:
-        time_spent: int = math.floor((entry.till_ - entry.from_).total_seconds() / 60)
+        time_spent: int = math.floor(
+            (entry.till_ - entry.from_).total_seconds() / 60
+        )
+
+        issue_key: str = entry.issue
+        start_offset_date_time: str = entry.from_.replace(
+            second=0, microsecond=0
+        ).isoformat()
+        comment: str = entry.description or Kronos.DEFAULT_COMMENT
+        site_id: int = Kronos.DEFAULT_SITE_ID
 
         work_log: _WorkLog = {
             "worklogInput": {
-                "issueKey": entry.issue,
+                "issueKey": issue_key,
                 "timeSpent": time_spent,
-                "startOffsetDateTime": entry.from_.isoformat(),
-                "comment": entry.description or Kronos.DEFAULT_COMMENT,
-                "siteId": Kronos.DEFAULT_SITE_ID,
+                "startOffsetDateTime": start_offset_date_time,
+                "comment": comment,
+                "siteId": site_id,
             },
             "travelInput": {
                 "travelToTimeSpentInMinutes": 0,
                 "travelFromTimeSpentInMinutes": 0,
                 "fromSiteId": None,
-            }
+            },
         }
 
         for tag in entry.tags:

@@ -14,7 +14,7 @@ from timesheets.constants import TZ
 
 
 class Toggl(SourceConnector):
-    BASE_URL: str = "https://api.track.toggl.com/api/v9"
+    BASE_URL: str = "https://api.track.toggl.com"
 
     def __init__(self, token: str, workspace_id: str) -> None:
         self._token: str = token
@@ -25,23 +25,30 @@ class Toggl(SourceConnector):
         self,
         entry: dict[str, typing.Any],
     ) -> TimeEntry:
-        match: re.Match = re.search(r"\[([A-Za-z\d\-]+)]", entry["description"])
+        match: re.Match = re.search(
+            r"\[([A-Za-z\d\-]+)]", entry["description"]
+        )
 
-        start: datetime.datetime = \
-            datetime.datetime.fromisoformat(entry["start"]).astimezone(tz=TZ)
-        stop: datetime.datetime = start + datetime.timedelta(seconds=entry["duration"])
+        from_: datetime.datetime = datetime.datetime.fromisoformat(
+            entry["start"]
+        ).astimezone(tz=TZ)
+        till_: datetime.datetime = from_ + datetime.timedelta(
+            seconds=entry["duration"]
+        )
 
         if match is not None:
             issue = match.group(1)
-            description = entry["description"].replace(f"[{issue}]", "").strip(" ")
+            description = (
+                entry["description"].replace(f"[{issue}]", "").strip(" ")
+            )
         else:
             issue = entry["description"]
             description = None
 
         return TimeEntry(
             issue=issue,
-            from_=start,
-            till_=stop,
+            from_=from_,
+            till_=till_,
             description=description,
             tags=entry["tags"],
         )
@@ -57,7 +64,7 @@ class Toggl(SourceConnector):
         till_str: str = urllib.parse.quote_plus(till_.isoformat())
 
         query: str = f"start_date={from_str}&end_date={till_str}"
-        url: str = f"{Toggl.BASE_URL}/me/time_entries?{query}"
+        url: str = f"{Toggl.BASE_URL}/api/v9/me/time_entries?{query}"
 
         auth: requests.auth.HTTPBasicAuth = requests.auth.HTTPBasicAuth(
             username=self._token,
@@ -67,10 +74,15 @@ class Toggl(SourceConnector):
         response: requests.Response = requests.get(url=url, auth=auth)
 
         if not response.ok:
-            raise Exception(f"Cannot get Toggl entries ({response.status_code})")
+            raise Exception(
+                f"Cannot get Toggl entries ({response.status_code})"
+            )
 
         for entry in response.json():
-            if entry["workspace_id"] == self._workspace_id and entry["stop"] is not None:
+            if (
+                entry["workspace_id"] == self._workspace_id
+                and entry["stop"] is not None
+            ):
                 entries.append(self._create_time_entry_from_toggl_entry(entry))
 
         return entries

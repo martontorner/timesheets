@@ -15,7 +15,11 @@ from timesheets.constants import NOW, TZ
 
 
 @click.group()
-@click.option("--config", "path", default=pathlib.Path.home() / ".config" / "timesheets" / "config.json")
+@click.option(
+    "--config",
+    "path",
+    default=pathlib.Path.home() / ".config" / "timesheets" / "config.json",
+)
 @click.version_option()
 @click.pass_context
 def cli(ctx: click.Context, path: pathlib.Path | str) -> None:
@@ -36,10 +40,15 @@ def config(ctx: click.Context) -> None:
 
 
 @cli.command()
-@click.option("--from", "from_", type=click.DateTime(), default=NOW.replace(hour=0, minute=0, second=0, microsecond=0))
+@click.option(
+    "--from",
+    "from_",
+    type=click.DateTime(),
+    default=NOW.replace(hour=0, minute=0, second=0, microsecond=0),
+)
 @click.option("--till", "till_", type=click.DateTime(), default=NOW)
-@click.option('--dry', is_flag=True, default=False)
-@click.option('--stop-on-fail', is_flag=True, default=False)
+@click.option("--dry", is_flag=True, default=False)
+@click.option("--stop-on-fail", is_flag=True, default=False)
 @click.password_option(confirmation_prompt=False)
 @click.pass_context
 def sync(
@@ -50,7 +59,6 @@ def sync(
     stop_on_fail: bool,
     password: str,
 ) -> None:
-
     from_ = from_.astimezone(tz=TZ)
     till_ = till_.astimezone(tz=TZ)
 

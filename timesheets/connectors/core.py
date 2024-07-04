@@ -17,9 +17,13 @@ class TimeEntry(object):
     tags: list[str] = dataclasses.field(default_factory=list)
 
     def __str__(self) -> str:
-        tags: str = ','.join(self.tags)
+        tags: str = ",".join(self.tags)
 
-        return f"[{self.from_.isoformat()} - {self.till_.isoformat()}] [{self.issue}] {self.description or '-'} [{tags}]"
+        form_: str = self.from_.isoformat()
+        till_: str = self.till_.isoformat()
+        description: str = self.description or '-'
+
+        return f"[{form_} - {till_}] [{self.issue}] {description} [{tags}]"
 
 
 class SourceConnector(metaclass=abc.ABCMeta):
