@@ -1,39 +1,42 @@
-# coding=utf-8
+"""Toggl connector for timesheets."""
+
 __all__ = ["Toggl"]
 
 import datetime
 import re
+import typing
 import urllib.parse
 
 import requests
 import requests.auth
-import typing
 
-from timesheets.connectors.core import TimeEntry, SourceConnector
+from timesheets.connectors.core import SourceConnector, TimeEntry
 from timesheets.constants import TZ
 
 
 class Toggl(SourceConnector):
+    """Source connector for Toggl time tracker via the v9 API."""
+
     BASE_URL: str = "https://api.track.toggl.com"
+    DEFAULT_TIMEOUT_S: int = 10
 
     def __init__(self, token: str, workspace_id: str) -> None:
+        """Initialize Toggl connector."""
         self._token: str = token
         self._workspace_id: str = workspace_id
 
-    # noinspection PyMethodMayBeStatic
-    def _create_time_entry_from_toggl_entry(
-        self,
-        entry: dict[str, typing.Any],
-    ) -> TimeEntry:
+    @staticmethod
+    def _create_time_entry(entry: dict[str, typing.Any]) -> TimeEntry:
         match: re.Match = re.search(
-            r"\[([A-Za-z\d\-]+)]", entry["description"]
+            r"\[([A-Za-z\d\-]+)]",
+            entry["description"],
         )
 
         from_: datetime.datetime = datetime.datetime.fromisoformat(
-            entry["start"]
+            entry["start"],
         ).astimezone(tz=TZ)
         till_: datetime.datetime = from_ + datetime.timedelta(
-            seconds=entry["duration"]
+            seconds=entry["duration"],
         )
 
         if match is not None:
@@ -53,13 +56,18 @@ class Toggl(SourceConnector):
             tags=entry["tags"],
         )
 
+    def _is_valid_entry(self, entry: dict[str, typing.Any]) -> bool:
+        return (
+            entry["workspace_id"] == self._workspace_id
+            and entry["stop"] is not None
+        )
+
     def get_time_entries(
         self,
         from_: datetime.datetime,
         till_: datetime.datetime,
     ) -> list[TimeEntry]:
-        entries: list[TimeEntry] = []
-
+        """Get time entries from Toggl for a given time range."""
         from_str: str = urllib.parse.quote_plus(from_.isoformat())
         till_str: str = urllib.parse.quote_plus(till_.isoformat())
 
@@ -68,21 +76,23 @@ class Toggl(SourceConnector):
 
         auth: requests.auth.HTTPBasicAuth = requests.auth.HTTPBasicAuth(
             username=self._token,
-            password="api_token",
+            password="api_token",  # noqa: S106
         )
 
-        response: requests.Response = requests.get(url=url, auth=auth)
+        response: requests.Response = requests.get(
+            url=url,
+            auth=auth,
+            timeout=Toggl.DEFAULT_TIMEOUT_S,
+        )
 
         if not response.ok:
-            raise Exception(
-                f"Cannot get Toggl entries ({response.status_code})"
-            )
+            msg: str = f"Cannot get Toggl entries ({response.status_code})"
+            raise Exception(msg)  # noqa: TRY002
 
-        for entry in response.json():
-            if (
-                entry["workspace_id"] == self._workspace_id
-                and entry["stop"] is not None
-            ):
-                entries.append(self._create_time_entry_from_toggl_entry(entry))
+        entries: list[TimeEntry] = [
+            Toggl._create_time_entry(entry)
+            for entry in response.json()
+            if self._is_valid_entry(entry)
+        ]
 
         return entries

@@ -1,17 +1,22 @@
-# coding=utf-8
+"""CLI endpoints for timesheets."""
+
 from __future__ import annotations
 
 __all__ = ["cli"]
 
-import datetime
 import json
+import logging
 import pathlib
+from typing import TYPE_CHECKING
 
 import click
 
 from timesheets.connectors.kronos import Kronos
 from timesheets.connectors.toggl import Toggl
 from timesheets.constants import NOW, TZ
+
+if TYPE_CHECKING:
+    import datetime
 
 
 @click.group()
@@ -23,12 +28,14 @@ from timesheets.constants import NOW, TZ
 @click.version_option()
 @click.pass_context
 def cli(ctx: click.Context, path: pathlib.Path | str) -> None:
+    """Call the default CLI entrypoint."""
     ctx.ensure_object(dict)
 
     path = pathlib.Path(path)
 
     if not path.is_file():
-        raise FileNotFoundError(f"The file [{path}] does not exist")
+        msg = f"The file [{path}] does not exist"
+        raise FileNotFoundError(msg)
 
     ctx.obj["config"] = json.loads(s=path.read_text())
 
@@ -36,7 +43,8 @@ def cli(ctx: click.Context, path: pathlib.Path | str) -> None:
 @cli.command()
 @click.pass_context
 def config(ctx: click.Context) -> None:
-    print(json.dumps(obj=ctx.obj["config"], indent=4))
+    """Print parsed configuration."""
+    print(json.dumps(obj=ctx.obj["config"], indent=4))  # noqa: T201
 
 
 @cli.command()
@@ -51,14 +59,16 @@ def config(ctx: click.Context) -> None:
 @click.option("--stop-on-fail", is_flag=True, default=False)
 @click.password_option(confirmation_prompt=False)
 @click.pass_context
-def sync(
+def sync(  # noqa: PLR0913
     ctx: click.Context,
     from_: datetime.datetime,
     till_: datetime.datetime,
+    *,
     dry: bool,
     stop_on_fail: bool,
     password: str,
 ) -> None:
+    """Synchronize time entries."""
     from_ = from_.astimezone(tz=TZ)
     till_ = till_.astimezone(tz=TZ)
 
@@ -77,12 +87,16 @@ def sync(
         if not dry:
             try:
                 kronos.create_time_entry(entry=entry)
-                print(f"LOGGED: {entry}")
+
+                msg: str = f"LOGGED: {entry}"
+                logging.info(msg)
             except Exception as e:
                 if stop_on_fail:
-                    print(f"FAILED: {entry}, reason: {e}")
-                    raise e from None
+                    msg: str = f"FAILED: {entry}"
+                    logging.exception(msg, exc_info=e)
                 else:
-                    print(f"IGNORE: {entry}, reason: {e}")
+                    msg: str = f"IGNORE: {entry}"
+                    logging.warning(msg, exc_info=e)
         else:
-            print(f"PARSED: {entry}")
+            msg: str = f"PARSED: {entry}"
+            logging.info(msg)

@@ -1,4 +1,5 @@
-# coding=utf-8
+"""Kronos connector for timesheets."""
+
 from __future__ import annotations
 
 __all__ = ["Kronos"]
@@ -8,17 +9,18 @@ import typing
 
 import requests
 
-from timesheets.connectors.core import TimeEntry, TargetConnector
+from timesheets.connectors.core import TargetConnector, TimeEntry
 
-_WorkLog: typing.TypeAlias = dict[
-    str, dict[str, typing.Union[str, int, float]]
-]
+type _WorkLog = dict[str, dict[str, str | int | float]]
 
 
 class Kronos(TargetConnector):
+    """Target connector for Kronos timesheet logger via the JIRA API."""
+
     BASE_URL: str = "https://jira.capsys.hu"
     DEFAULT_COMMENT: str = ""
     DEFAULT_SITE_ID: int = 31
+    DEFAULT_TIMEOUT_S: int = 10
 
     def __init__(
         self,
@@ -26,6 +28,7 @@ class Kronos(TargetConnector):
         password: str,
         tags: dict[str, dict[str, typing.Any]],
     ) -> None:
+        """Initialize Kronos connector."""
         self._username: str = username
         self._password: str = password
 
@@ -39,15 +42,18 @@ class Kronos(TargetConnector):
         return self._headers is not None
 
     def login(self) -> None:
+        """Login to Kronos API and create reusable session."""
         url: str = f"{Kronos.BASE_URL}/rest/auth/1/session"
 
         response: requests.Response = requests.post(
             url=url,
             json={"username": self._username, "password": self._password},
+            timeout=Kronos.DEFAULT_TIMEOUT_S,
         )
 
         if not response.ok:
-            raise Exception(f"Cannot login to JIRA ({response.status_code})")
+            msg: str = f"Cannot login to JIRA ({response.status_code})"
+            raise Exception(msg)  # noqa: TRY002
 
         result: dict[str, dict[str, str]] = response.json()
         name: str = result["session"]["name"]
@@ -64,7 +70,13 @@ class Kronos(TargetConnector):
 
         self._ensure_login()
 
-        return requests.get(url=url, headers=self._headers).ok
+        response: requests.Response = requests.get(
+            url=url,
+            headers=self._headers,
+            timeout=Kronos.DEFAULT_TIMEOUT_S,
+        )
+
+        return response.ok
 
     def _create_work_log(self, work_log: _WorkLog) -> None:
         url: str = f"{Kronos.BASE_URL}/rest/kronos/1.0/log-entry"
@@ -73,30 +85,35 @@ class Kronos(TargetConnector):
         self._ensure_login()
 
         if not self._is_valid_issue(issue=issue):
-            raise Exception(f"Unknown JIRA issue [{issue}]")
+            msg: str = f"Unknown JIRA issue [{issue}]"
+            raise Exception(msg)  # noqa: TRY002
 
         response: requests.Response = requests.post(
             url=url,
             json=work_log,
             headers=self._headers,
+            timeout=Kronos.DEFAULT_TIMEOUT_S,
         )
 
         if not response.ok:
             status_code: int = response.status_code
             reason: str = response.text
 
-            raise Exception(
+            msg: str = (
                 f"Cannot create work log ({status_code}, reason: {reason})"
             )
+            raise Exception(msg)  # noqa: TRY002
 
     def create_time_entry(self, entry: TimeEntry) -> None:
+        """Create new time entry in Kronos."""
         time_spent: int = math.floor(
-            (entry.till_ - entry.from_).total_seconds() / 60
+            (entry.till_ - entry.from_).total_seconds() / 60,
         )
 
         issue_key: str = entry.issue
         start_offset_date_time: str = entry.from_.replace(
-            second=0, microsecond=0
+            second=0,
+            microsecond=0,
         ).isoformat()
         comment: str = entry.description or Kronos.DEFAULT_COMMENT
         site_id: int = Kronos.DEFAULT_SITE_ID

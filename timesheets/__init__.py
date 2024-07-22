@@ -1,1 +1,1 @@
-# coding=utf-8
+"""Main package of timesheets."""

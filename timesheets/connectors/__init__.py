@@ -1,1 +1,1 @@
-# coding=utf-8
+"""Connectors to fetch and log time entries."""
