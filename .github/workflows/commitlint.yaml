@@ -1,0 +1,42 @@
+name: commitlint
+
+on:
+  push:
+    branches:
+      - master
+      - release/*
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - run: git --version
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup NodeJS
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+
+      - run: node --version
+      - run: npm --version
+
+      - run: npm install -D @commitlint/cli conventional-changelog-conventionalcommits
+      - run: npx @commitlint/cli --version
+
+      - name: Validate Branch
+        if: github.event_name == 'push'
+        run: npx @commitlint/cli --last --verbose
+
+      - name: Validate PR
+        if: github.event_name == 'pull_request'
+        run: npx @commitlint/cli --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose

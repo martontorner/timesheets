@@ -1,0 +1,10 @@
+# Auto detect text files and perform LF normalization
+* text=auto
+
+# Always use LF line endings for source files
+*.go   text eol=lf
+*.mod  text eol=lf
+*.sum  text eol=lf
+
+# Mark binary files (no diff)
+*.png  binary

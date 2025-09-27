@@ -1,0 +1,122 @@
+git:
+  conventional_commits: true
+  filter_unconventional: true
+  require_conventional: true
+  protect_beaking_changes: true
+  commit_parsers:
+    - message: "^feat"
+      group: feat
+    - message: "^fix"
+      group: fix
+    - message: "^perf"
+      group: perf
+  filter_commits: true
+  tag_pattern: "v*"
+bump:
+  initial_tag: "0.1.0"
+changelog:
+  header: null
+  body: |
+    {%- macro remote_url() -%}
+      https://github.com/{{ remote.github.owner }}/{{ remote.github.repo }}
+    {%- endmacro -%}
+    {%- macro print_breaking(commit) -%}
+      {%- if commit.breaking_description -%}
+        - {{ commit.breaking_description }}
+      {%- else -%}
+        - {{ commit.message }}
+      {%- endif -%}
+    {%- endmacro -%}
+    {%- macro print_commit_header() -%}
+      | Commit | Description |
+      | -- | -- |
+    {%- endmacro -%}
+    {%- macro print_commit(commit) -%}
+      {%- if commit.group == "feat" -%}
+        {% set color = "blue" %}
+      {%- elif commit.group == "fix" -%}
+        {% set color = "orange" %}
+      {%- elif commit.group == "perf" -%}
+        {% set color = "lightgrey" %}
+      {%- else -%}
+        {# Throw on unhandled group #}
+        {% set color = unhandled_color %}
+      {%- endif -%}
+      | [![{{ commit.id | truncate(length=8, end="") }}](https://img.shields.io/badge/{{ commit.id | truncate(length=8, end="") }}-{{ commit.group }}-{{ color }})]({{ self::remote_url() }}/commit/{{ commit.id }}) | {{ commit.message }} |
+    {%- endmacro -%}
+
+    {%- if version -%}
+      {%- set scoped_commits = commits | filter(attribute="scope") -%}
+      {%- set breaking_commits = commits | filter(attribute="breaking", value=true) -%}
+      {%- set scoped_breaking_commits = breaking_commits | filter(attribute="scope") -%}
+
+      {%- set n_commits = commits | length -%}
+      {%- set n_scoped_commits = scoped_commits | length -%}
+      {%- set n_breaking_commits = breaking_commits | length -%}
+
+      {# - #}
+      <!-- {{ version }} -->
+      {# - #}
+      # {{ version | trim_start_matches(pat="v") }} ({{ timestamp | date(format="%Y-%m-%d") }})
+      {# - #}
+      {%- if previous.version -%}
+      {# - #}
+      >[!NOTE]
+      >This is a list of all notable improvements in this release, if you are interested you can browse the full changelog [here]({{ self::remote_url() }}/compare/{{ previous.version }}..{{ version }}).
+      {# - #}
+      {%- endif -%}
+      {# - #}
+      {%- if n_breaking_commits > 0 -%}
+        {# - #}
+        ## Breaking Changes
+        {# - #}
+      {%- endif -%}
+      {%- for commit in breaking_commits -%}
+        {%- if not commit.scope -%}
+          {{ self::print_breaking(commit=commit) }}
+          {# - #}
+        {%- endif -%}
+      {%- endfor -%}
+      {%- for group, commits in breaking_commits | group_by(attribute="scope") -%}
+        {# - #}
+        ### {{ group }}
+        {# - #}
+        {%- for commit in commits -%}
+          {{ self::print_breaking(commit=commit) }}
+          {# - #}
+        {%- endfor -%}
+        {# - #}
+      {%- endfor -%}
+      {# - #}
+      ## Changes
+      {# - #}
+      {%- if n_commits > n_scoped_commits -%}
+        {# - #}
+        {{ self::print_commit_header() }}
+        {# - #}
+        {%- for commit in commits -%}
+          {%- if not commit.scope -%}
+            {{ self::print_commit(commit=commit) }}
+            {# - #}
+          {%- endif -%}
+        {%- endfor -%}
+        {# - #}
+      {%- endif -%}
+      {%- for group, commits in commits | group_by(attribute="scope") -%}
+        {# - #}
+        ### {{ group }}
+        {# - #}
+        {{ self::print_commit_header() }}
+        {# - #}
+        {%- for commit in commits -%}
+          {{ self::print_commit(commit=commit) }}
+          {# - #}
+        {%- endfor -%}
+        {# - #}
+      {%- endfor -%}
+      {# - #}
+      <!-- {{ version }} -->
+      {# - #}
+    {%- endif -%}
+  footer: null
+  trim: true

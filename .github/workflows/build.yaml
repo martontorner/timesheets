@@ -1,0 +1,36 @@
+name: build
+
+on:
+  push:
+    branches:
+      - master
+      - release/*
+  pull_request:
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - run: git --version
+
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: "go.mod"
+
+      - run: go version
+
+      - run: make context
+
+      - name: Build
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: make build

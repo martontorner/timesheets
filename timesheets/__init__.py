@@ -1,1 +1,0 @@
-"""Main package of timesheets."""

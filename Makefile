@@ -1,25 +1,33 @@
-# HELP
-# This will output the help for each task
-# thanks to https://marmelab.com/blog/2016/02/29/auto-documented-makefile.html
+.DEFAULT_GOAL := help
+.PHONY : context clean dependencies build install test changelog
+
+VERSION 		:= $(shell git describe --tags --abbrev=0 --exact-match 2> /dev/null)
+
+LDFLAGS     := -w -s -X main.version=$(VERSION)
+GO111MODULE := on
+
 help: ## This help.
 	@awk 'BEGIN {FS = ":.*?## "} /^[a-zA-Z_-]+:.*?## / {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
-.DEFAULT_GOAL := help
-.PHONY: help clean build install install-dev uninstall-dev
+context: ## Print context information.
+	@echo "Version:     ${VERSION}"
+	@echo "Flags:       ${LDFLAGS}"
 
-clean: ## Clean repository
-	@rm -rf build/ dist/ .eggs/
+clean: ## Clean up working directory.
+	rm -rf dist
+	rm -f timesheets
 
-build: clean ## Build python package from sources
-	@python -m build --wheel --sdist
+dependencies: ## Install dependencies.
+	go mod tidy
 
-install: clean ## Install python package from sources
-	@pip install .
+test: clean ## Run tests.
+	go test
 
-install-dev: clean ## Install the python package in development mode
-	pip install -e ".[development]"
+build: clean ## Build timesheets binary.
+	go build -ldflags "$(LDFLAGS)"
 
-uninstall-dev: clean ## Uninstall the package installed in development mode
-	rm -rf timesheets.egg-info/
-	pip uninstall timesheets
+install: clean ## Install timesheets binary.
+	go install -ldflags "$(LDFLAGS)"
 
+changelog: ## Generate changelog.
+	git cliff -c .cliff.yaml -o CHANGELOG.md --tag "$(TAG)"
