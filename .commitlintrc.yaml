@@ -1,0 +1,39 @@
+parserPreset: conventional-changelog-conventionalcommits
+helpUrl: https://www.conventionalcommits.org/en/v1.0.0/
+defaultIgnores: true
+rules:
+  header-max-length: [2, "always", 72]
+  header-trim: [2, "always"]
+  type-empty: [2, "never"]
+  type-case: [2, "always", "lower-case"]
+  type-enum:
+    [
+      2,
+      "always",
+      [
+        "build",
+        "chore",
+        "ci",
+        "docs",
+        "feat",
+        "fix",
+        "perf",
+        "refactor",
+        "release",
+        "revert",
+        "style",
+        "test",
+      ],
+    ]
+  scope-case: [2, "always", ["lower-case", "kebab-case"]]
+  subject-empty: [2, "never"]
+  subject-case:
+    [2, "never", ["sentence-case", "start-case", "pascal-case", "upper-case"]]
+  subject-full-stop: [2, "never", "."]
+  body-leading-blank: [2, "always"]
+  body-max-line-length: [2, "always", 72]
+  body-case: [2, "always", ["sentence-case"]]
+  body-full-stop: [2, "never", "."]
+  footer-leading-blank: [2, "always"]
+  footer-max-line-length: [2, "always", 72]
+  signed-off-by: [2, "always"]

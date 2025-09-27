@@ -1,0 +1,11 @@
+{
+  "name": "Go",
+  "image": "mcr.microsoft.com/devcontainers/go:2-1.25",
+  "features": {
+    "ghcr.io/devcontainers/features/go:1": {},
+    "ghcr.io/devcontainers/features/git:1": {},
+    "ghcr.io/devcontainers/features/nix:1": {
+      "packages": "git-cliff"
+    }
+  }
+}

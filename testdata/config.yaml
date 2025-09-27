@@ -1,0 +1,25 @@
+source:
+  kind: TogglTrack
+  spec:
+    workspace: 6365718
+    token: asdf1234
+
+target:
+  kind: CapsysKronos
+  spec:
+    token: asdf1234
+    tags:
+      home-office: { siteId: 34 }
+      development: { activityTypeId: 5 }
+      meeting: { activityTypeId: 12 }
+      presentation: { activityTypeId: 14 }
+      research: { activityTypeId: 24 }
+      review: { activityTypeId: 19 }
+      documentation: { activityTypeId: 1 }
+      system-maintenance: { activityTypeId: 30 }
+      design: { activityTypeId: 25 }
+      planning: { activityTypeId: 25 }
+      training: { activityTypeId: 15 }
+      specification: { activityTypeId: 20 }
+
+timezone: Europe/Budapest
