@@ -3,7 +3,7 @@ name: commitlint
 on:
   push:
     branches:
-      - master
+      - main
       - release/*
   pull_request:
 
@@ -18,12 +18,12 @@ jobs:
       - run: git --version
 
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
       - name: Setup NodeJS
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: lts/*
 
