@@ -1,6 +1,8 @@
 # Security Policy
 
-> [!IMPORTANT] >**Do not open a public issue, please report your findigs privately.**
+<!-- prettier-ignore -->
+>[!IMPORTANT]
+>**Do not open a public issue, please report your findings privately.**
 
 ## Reporting a Vulnerability
 
