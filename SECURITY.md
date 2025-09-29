@@ -1,7 +1,6 @@
 # Security Policy
 
->[!IMPORTANT]
->**Do not open a public issue, please report your findigs privately.**
+> [!IMPORTANT] >**Do not open a public issue, please report your findigs privately.**
 
 ## Reporting a Vulnerability
 
@@ -28,8 +27,7 @@ We will announce security fixes in the [release notes][changelog] and update thi
   :lock: Thank you for helping keep this project and the open source community safe! :lock:
 </p>
 
-
-[security]: https://github.com/tornermarton/gotmpl/security
-[advisory]: https://github.com/gotmpl/gotmpl/security/advisories/new
-[release]: https://github.com/gotmpl/gotmpl/releases/latest
+[security]: https://github.com/tornermarton/timesheets/security
+[advisory]: https://github.com/tornermarton/timesheets/security/advisories/new
+[release]: https://github.com/tornermarton/timesheets/releases/latest
 [changelog]: CHANGELOG.md
