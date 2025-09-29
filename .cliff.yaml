@@ -2,7 +2,7 @@ git:
   conventional_commits: true
   filter_unconventional: true
   require_conventional: true
-  protect_beaking_changes: true
+  protect_breaking_changes: true
   commit_parsers:
     - message: "^feat"
       group: feat
