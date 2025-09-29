@@ -1,13 +1,13 @@
+<h1 align="center">TimesheetS</h1>
+
 <p align="center">
-  <h1>TimesheetS</h1>
-  <br>
   <em>Synchronize your work logs between multiple timesheet managing systems with ease.</em>
 </p>
 
 <p align="center">
   <a href="https://github.com/tornermarton/timesheets/releases"><img src="https://img.shields.io/github/v/release/tornermarton/timesheets?logo=semver&label=Release" alt="Releases" align="center" /></a>
   &nbsp
-  <a href="https://github.com/tornermarton/timesheets/actions"><img src="https://img.shields.io/github/check-runs/tornermarton/timesheets/master?logo=github&label=CI" alt="CI" align="center" /></a>
+  <a href="https://github.com/tornermarton/timesheets/actions"><img src="https://img.shields.io/github/check-runs/tornermarton/timesheets/main?logo=github&label=CI" alt="CI" align="center" /></a>
   &nbsp
   <a href="https://go.dev"><img src="https://img.shields.io/github/go-mod/go-version/tornermarton/timesheets?logo=go" alt="Go Version" align="center" /></a>
 </p>
