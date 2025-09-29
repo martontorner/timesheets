@@ -1,5 +1,5 @@
 .DEFAULT_GOAL := help
-.PHONY : context clean dependencies build install test changelog
+.PHONY : context clean dependencies test build install changelog
 
 VERSION 		:= $(shell git describe --tags --abbrev=0 --exact-match 2> /dev/null)
 
@@ -24,7 +24,7 @@ test: clean ## Run tests.
 	go test
 
 build: clean ## Build timesheets binary.
-	go build -ldflags "$(LDFLAGS)"
+	go build -ldflags "$(LDFLAGS)" -o dist/timesheets
 
 install: clean ## Install timesheets binary.
 	go install -ldflags "$(LDFLAGS)"
