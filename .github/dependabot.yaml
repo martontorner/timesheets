@@ -20,7 +20,7 @@ updates:
     commit-message:
       prefix: "chore"
       include: "scope"
-  - package-ecosystem: "docker"
+  - package-ecosystem: "devcontainers"
     directory: "/"
     schedule:
       interval: "daily"
