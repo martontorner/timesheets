@@ -51,21 +51,29 @@ func FitArray(a []string, width int) string {
 
 	for _, s := range a {
 		partLen := len(s)
-		if len(parts) > 0 {
+		partsLen := len(parts)
+
+		if partsLen > 0 {
 			partLen++ // count space if not the first
 		}
 
-		if partLen > remaining {
+		if partLen < remaining {
+			parts = append(parts, s)
+			remaining -= partLen
+		} else if partLen > remaining {
 			parts = append(parts, "…")
-			remaining -= 2 // …
+			remaining -= 1
 			break
+		} else {
+			if partsLen < len(a)-1 {
+				parts = append(parts, "…")
+				remaining -= 1
+				break
+			} else {
+				parts = append(parts, s)
+				remaining -= partLen
+			}
 		}
-
-		if len(parts) > 0 {
-			remaining-- //space
-		}
-		parts = append(parts, s)
-		remaining -= len(s)
 	}
 
 	return "[" + strings.Join(parts, " ") + "]" + strings.Repeat(" ", remaining)
