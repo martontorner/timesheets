@@ -214,8 +214,12 @@ func createCapsysKronos(spec map[string]any) (*CapsysKronos, error) {
 	}
 
 	var tags = CapsysKronosTags{}
-	if tagsParam, ok := spec["tags"].(map[string]map[string]any); ok {
-		tags = CapsysKronosTags(tagsParam)
+	if tagsParam, ok := spec["tags"].(map[string]any); ok {
+		for k, v := range tagsParam {
+			if tagsParamInner, ok := v.(map[string]any); ok {
+				tags[k] = tagsParamInner
+			}
+		}
 	}
 
 	var defaults = map[string]any{}
