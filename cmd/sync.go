@@ -38,7 +38,7 @@ func sync(context *cli.Context, from time.Time, till time.Time, bail bool, dry b
 		fmt.Printf("%s", entry.String(location))
 
 		if dry {
-			fmt.Printf("\n")
+			fmt.Printf(" -\n")
 			continue
 		}
 
