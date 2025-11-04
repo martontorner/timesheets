@@ -1,10 +1,26 @@
 
-<!-- 1.0.1 -->
+<!-- v1.0.2 -->
+
+# 1.0.2 (2025-11-04)
+
+>[!NOTE]
+>This is a list of all notable improvements in this release, if you are interested you can browse the full changelog [here](https://github.com/martontorner/timesheets/compare/v1.0.1..v1.0.2).
+
+## Changes
+
+| Commit | Description |
+| -- | -- |
+| [![b7237b54](https://img.shields.io/badge/b7237b54-fix-orange)](https://github.com/martontorner/timesheets/commit/b7237b54fbcd226afb452b101ce0cfb49bb001b1) | correct remaining space count in FitArray |
+| [![a64740a6](https://img.shields.io/badge/a64740a6-fix-orange)](https://github.com/martontorner/timesheets/commit/a64740a604e3c46329f91c4e5587e19d66818a84) | correct filling Kronos work log input values from tags |
+
+<!-- v1.0.2 -->
+
+<!-- v1.0.1 -->
 
 # 1.0.1 (2025-10-16)
 
 >[!NOTE]
->This is a list of all notable improvements in this release, if you are interested you can browse the full changelog [here](https://github.com/martontorner/timesheets/compare/v1.0.0..1.0.1).
+>This is a list of all notable improvements in this release, if you are interested you can browse the full changelog [here](https://github.com/martontorner/timesheets/compare/v1.0.0..v1.0.1).
 
 ## Changes
 
@@ -12,7 +28,7 @@
 | -- | -- |
 | [![bcd41464](https://img.shields.io/badge/bcd41464-fix-orange)](https://github.com/martontorner/timesheets/commit/bcd41464e847e63ead05ed8aa2c1d264b710205d) | correct FitArray if first element exatly fits |
 
-<!-- 1.0.1 -->
+<!-- v1.0.1 -->
 
 <!-- v1.0.0 -->
 
