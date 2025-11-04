@@ -62,7 +62,7 @@ func FitArray(a []string, width int) string {
 			remaining -= partLen
 		} else if partLen > remaining {
 			parts = append(parts, "…")
-			remaining -= 1
+			remaining -= 2 // account for ellipsis and space (since we don't use partLen here)
 			break
 		} else {
 			if partsLen < len(a)-1 {
