@@ -42,11 +42,11 @@ func FitString(s string, width int) string {
 }
 
 func FitArray(a []string, width int) string {
-	if width < 2 {
+	if width <= 2 {
 		return "[]"
 	}
 
-	remaining := width - 2
+	remaining := width - 2 // account for brackets
 	var parts []string
 
 	for _, s := range a {
@@ -54,25 +54,20 @@ func FitArray(a []string, width int) string {
 		partsLen := len(parts)
 
 		if partsLen > 0 {
-			partLen++ // count space if not the first
+			remaining-- // account for space if not the first
 		}
 
-		if partLen < remaining {
+		if partLen == remaining && partsLen == len(a)-1 {
 			parts = append(parts, s)
 			remaining -= partLen
-		} else if partLen > remaining {
-			parts = append(parts, "…")
-			remaining -= 2 // account for ellipsis and space (since we don't use partLen here)
 			break
+		} else if partLen < (remaining - 1) { // we always need a next space (even before "…" if we can't fit the next part)
+			parts = append(parts, s)
+			remaining -= partLen
 		} else {
-			if partsLen < len(a)-1 {
-				parts = append(parts, "…")
-				remaining -= 1
-				break
-			} else {
-				parts = append(parts, s)
-				remaining -= partLen
-			}
+			parts = append(parts, "…")
+			remaining -= 1
+			break
 		}
 	}
 
