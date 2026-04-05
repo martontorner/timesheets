@@ -1,11 +1,15 @@
 package entries
 
 import (
-	"fmt"
 	"time"
+
+	"charm.land/lipgloss/v2"
 
 	"github.com/tornermarton/timesheets/internal/utils"
 )
+
+var primary = lipgloss.NewStyle().Bold(true)
+var secondary = lipgloss.NewStyle().Faint(true)
 
 type TimeEntry struct {
 	Issue       string
@@ -16,12 +20,13 @@ type TimeEntry struct {
 }
 
 func (te TimeEntry) String(location *time.Location) string {
-	return fmt.Sprintf(
-		"[%s - %s] [%s] %s %s",
+	return lipgloss.Sprintf(
+		"%s-%s %s %s %s %s",
 		te.From.In(location).Format(time.DateTime),
-		te.Till.In(location).Format(time.DateTime),
-		utils.FitString(te.Issue, 12),
-		utils.FitString(te.Description, 20),
-		utils.FitArray(te.Tags, 20),
+		te.Till.In(location).Format(time.TimeOnly),
+		secondary.Render(utils.FitString(te.Till.Sub(te.From).Round(time.Minute).String(), 9)),
+		primary.Render(utils.FitString(te.Issue, 12)),
+		primary.Render(utils.FitString(te.Description, 20)),
+		secondary.Render(utils.FitArray(te.Tags, 20)),
 	)
 }

@@ -7,11 +7,18 @@ import (
 	"os"
 	"time"
 
+	"charm.land/lipgloss/v2"
+
 	"github.com/tornermarton/timesheets/internal/cli"
 	"github.com/tornermarton/timesheets/internal/constants"
 	"github.com/tornermarton/timesheets/internal/entries"
 	"github.com/tornermarton/timesheets/internal/utils"
 )
+
+// TODO: use spinner with: ○ ◉ ●
+var status = lipgloss.NewStyle().Foreground(lipgloss.BrightWhite)
+var success = lipgloss.NewStyle().Foreground(lipgloss.Green)
+var danger = lipgloss.NewStyle().Foreground(lipgloss.Red)
 
 func sync(context *cli.Context, from time.Time, till time.Time, bail bool, dry bool) {
 	source, err := entries.NewTimeEntrySource(context.Config.Source)
@@ -35,22 +42,22 @@ func sync(context *cli.Context, from time.Time, till time.Time, bail bool, dry b
 	}
 
 	for _, entry := range entries {
-		fmt.Printf("%s", entry.String(location))
-
 		if dry {
-			fmt.Printf(" -\n")
+			lipgloss.Printf("%s %s\n", status.Render("○"), entry.String(location))
 			continue
 		}
 
+		lipgloss.Printf("%s %s", status.Render("◌"), entry.String(location))
+
 		if err := target.PushTimeEntry(entry); err != nil {
+			lipgloss.Printf("\r%s %s\n", danger.Render("⏺"), entry.String(location))
+			lipgloss.Printf("╰─ %s\n\n", danger.Render(utils.GetErrorMessage(err)))
+
 			if bail {
-				fmt.Printf(" ✘ %s\n", utils.GetErrorMessage(err))
 				os.Exit(1)
-			} else {
-				fmt.Printf(" ✘ %s\n", utils.GetErrorMessage(err))
 			}
 		} else {
-			fmt.Printf(" ✔\n")
+			lipgloss.Printf("\r%s %s\n", success.Render("⏺"), entry.String(location))
 		}
 	}
 }
