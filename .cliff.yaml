@@ -81,9 +81,11 @@ changelog:
         {# - #}
         ### {{ group }}
         {# - #}
-        {%- for commit in commits -%}
-          {{ self::print_breaking(commit=commit) }}
-          {# - #}
+        {%- for _, commits in commits | group_by(attribute="group") -%}
+          {%- for commit in commits -%}
+            {{ self::print_breaking(commit=commit) }}
+            {# - #}
+          {%- endfor -%}
         {%- endfor -%}
         {# - #}
       {%- endfor -%}
@@ -94,11 +96,13 @@ changelog:
         {# - #}
         {{ self::print_commit_header() }}
         {# - #}
-        {%- for commit in commits -%}
-          {%- if not commit.scope -%}
-            {{ self::print_commit(commit=commit) }}
-            {# - #}
-          {%- endif -%}
+        {%- for _, commits in commits | group_by(attribute="group") -%}
+          {%- for commit in commits -%}
+            {%- if not commit.scope -%}
+              {{ self::print_commit(commit=commit) }}
+              {# - #}
+            {%- endif -%}
+          {%- endfor -%}
         {%- endfor -%}
         {# - #}
       {%- endif -%}
@@ -108,9 +112,11 @@ changelog:
         {# - #}
         {{ self::print_commit_header() }}
         {# - #}
-        {%- for commit in commits -%}
-          {{ self::print_commit(commit=commit) }}
-          {# - #}
+        {%- for _, commits in commits | group_by(attribute="group") -%}
+          {%- for commit in commits -%}
+            {{ self::print_commit(commit=commit) }}
+            {# - #}
+          {%- endfor -%}
         {%- endfor -%}
         {# - #}
       {%- endfor -%}
