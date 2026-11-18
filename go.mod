@@ -3,7 +3,7 @@ module github.com/tornermarton/timesheets
 go 1.26.1
 
 require (
-	charm.land/lipgloss/v2 v2.0.6
+	charm.land/lipgloss/v2 v2.1.1
 	gopkg.in/yaml.v3 v3.0.1
 )
 
